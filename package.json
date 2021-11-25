@@ -1,0 +1,24 @@
+{
+	"scripts": {
+		"dev": "dotenv nodemon ./src/index.ts",
+		"build": "tsc -P .",
+		"start": "node ./dist/src/index.js"
+	},
+	"author": {
+		"name": "Himanshu Pal",
+		"email": "mailtohimanshupal@gmail.com"
+	},
+	"license": "GPL-3.0-or-later",
+	"devDependencies": {
+		"@sinclair/typebox": "^0.21.2",
+		"@types/node": "^16.11.9",
+		"dotenv-cli": "^4.1.0",
+		"nodemon": "^2.0.15",
+		"ts-node": "^10.4.0",
+		"typescript": "^4.5.2"
+	},
+	"dependencies": {
+		"fastify": "^3.24.0",
+		"mongodb": "^4.2.0"
+	}
+}

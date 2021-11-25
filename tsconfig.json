@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"outDir": "dist",
+		"resolveJsonModule": true,
+		"moduleResolution": "node",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./*"]
+		},
+		"types": ["node"],
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true
+	},
+	"exclude": ["node_modules"]
+}
