@@ -14,11 +14,11 @@
 		"@types/node": "^16.11.9",
 		"dotenv-cli": "^4.1.0",
 		"nodemon": "^2.0.15",
-		"ts-node": "^10.4.0",
-		"typescript": "^4.5.2"
+		"ts-node": "^10.4.0"
 	},
 	"dependencies": {
 		"fastify": "^3.24.0",
-		"mongodb": "^4.2.0"
+		"mongodb": "^4.2.0",
+		"typescript": "^4.5.2"
 	}
 }
