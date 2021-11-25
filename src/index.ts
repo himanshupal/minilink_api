@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import cors from "fastify-cors";
 import { FastifyError } from "fastify-error";
 import { STATUS_CODES } from "http";
 
@@ -18,6 +19,8 @@ const PORT = process.env.PORT || 8000;
 
 const fastify = Fastify();
 
+fastify.register(cors);
+
 fastify.get("/", async (_, reply) => {
 	return reply.send(STATUS_CODES);
 });
@@ -29,10 +32,10 @@ fastify.post<{ Body: User; Reply: User | Error }>(
 		try {
 			const { collection, client } = await getCollection<User>(usersCollection);
 
-			const findRes = await collection.findOne({
+			const user = await collection.findOne({
 				username: request.body.username,
 			});
-			if (findRes) {
+			if (user) {
 				return reply
 					.status(409)
 					.send({ message: "Username already taken, please choose another" });
@@ -73,20 +76,18 @@ fastify.post<{ Body: CreateLink; Reply: Link | Error }>(
 
 			if (!author) {
 				await usersClient.close();
-				return reply
-					.status(401)
-					.send({ message: "Invalid username or password" });
+				return reply.status(401).send({ message: "Incorrect password!" });
 			}
 
 			const { collection, client } = await getCollection<Link>(linksCollection);
 
-			const findRes = await collection.findOne({
+			const link = await collection.findOne({
 				url: request.body.url,
 				createdBy: request.body.username,
 			});
-			if (findRes) {
+			if (link) {
 				return reply.status(409).send({
-					message: `A link already exists with same url at #${findRes.count}`,
+					message: `A link already exists with same url at #${link.count}`,
 				});
 			}
 
@@ -119,38 +120,37 @@ fastify.post<{ Body: CreateLink; Reply: Link | Error }>(
 	}
 );
 
-fastify.get<{ Params: { username: string }; Reply: Links | Error }>(
-	"/:username",
-	{ schema: LinksSchema },
-	async (request, reply) => {
-		try {
-			const username = request.params.username;
+fastify.get<{
+	Params: { username: string };
+	Reply: Record<string, Links | User> | Error;
+}>("/:username", { schema: LinksSchema }, async (request, reply) => {
+	try {
+		const username = request.params.username;
 
-			const { collection: users, client: usersClient } =
-				await getCollection<User>(usersCollection);
+		const { collection: users, client: usersClient } =
+			await getCollection<User>(usersCollection);
 
-			const findRes = await users.findOne({ username });
-			await usersClient.close();
-			if (!findRes) {
-				return reply.status(404).send({ message: "User not found!" });
-			}
-
-			const { collection, client } = await getCollection<Link>(linksCollection);
-			const cursor = collection.find({ createdBy: username });
-
-			let links: Links = [];
-			await cursor.forEach((link) => {
-				links.push(link);
-			});
-			await client.close();
-
-			return links;
-		} catch (error: any) {
-			const err: FastifyError = error;
-			return reply.status(500).send({ message: err.message });
+		const user = await users.findOne({ username });
+		await usersClient.close();
+		if (!user) {
+			return reply.status(404).send({ message: "User not found!" });
 		}
+
+		const { collection, client } = await getCollection<Link>(linksCollection);
+		const cursor = collection.find({ createdBy: username });
+
+		let data: Links = [];
+		await cursor.forEach((link) => {
+			data.push(link);
+		});
+		await client.close();
+
+		return { user, data };
+	} catch (error: any) {
+		const err: FastifyError = error;
+		return reply.status(500).send({ message: err.message });
 	}
-);
+});
 
 fastify.get<{
 	Params: { username: string; count: number };
@@ -163,9 +163,9 @@ fastify.get<{
 		const { collection: users, client: usersClient } =
 			await getCollection<User>(usersCollection);
 
-		const findRes = await users.findOne({ username });
+		const user = await users.findOne({ username });
 		await usersClient.close();
-		if (!findRes) {
+		if (!user) {
 			return reply.status(404).send({ message: "User not found!" });
 		}
 
