@@ -1,7 +1,7 @@
 {
 	"scripts": {
 		"dev": "dotenv nodemon ./src/index.ts",
-		"build": "node_modules/typescript/bin/tsc -P .",
+		"build": "tsc -P .",
 		"start": "node ./dist/src/index.js"
 	},
 	"author": {

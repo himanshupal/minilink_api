@@ -1,0 +1,7 @@
+{
+    "appName": "MiniLink",
+    "databaseName": "minilink",
+    "usersCollection": "users",
+    "linksCollection": "links",
+    "expireInDays": 3
+}
